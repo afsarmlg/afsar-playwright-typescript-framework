@@ -1,0 +1,41 @@
+name: Playwright Test
+
+on: 
+  push: 
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+
+jobs:
+  test:
+    timeout-minutes: 15
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Codebase
+        uses: actions/checkout@v4
+
+      - name: Initialize Node.js environment
+        uses: actions/setup-node@v4
+        with: 
+          node-version: lts/*
+          cache: 'npm'
+
+      - name: Install application dependencies
+        run: npm ci
+
+      - name: Recreate the secure .env file dynamically
+        run: echo "${{secrets.ENV_FILE_CONTENT}}">.env
+      
+      - name: Intall targetted Playwright browser(chromium only)
+        run: npx playwright install chromium --with-deps
+
+      - name: Execute Parallel Multi-Role Test Code
+        run: npm run test:qa
+
+      - name: Save execution artifacts (Traces & Reports)
+        uses: actions/upload-artifact@v4
+        if: ${{! cancelled()}}
+        with: 
+          name: playwright-execution-report
+          path: playwright-report/
+          retention-days: 15 
