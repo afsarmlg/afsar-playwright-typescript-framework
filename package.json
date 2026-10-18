@@ -14,6 +14,6 @@
     "dotenv": "^18.0.4"
   },
   "scripts": {
-    "test:qa": "cross-env ENV=qa playwright test tests/ui/mutiplelogin.spec.ts --headed & start playwright-report/index.html"
+    "test:qa": "cross-env ENV=qa playwright test tests/ui/mutiplelogin.spec.ts --project=chromium"
   }
 }
