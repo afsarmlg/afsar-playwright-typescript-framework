@@ -11,7 +11,10 @@ import * as fs from 'fs';
 // import path from 'path';
 // dotenv.config({ path: path.resolve(__dirname, '.env') });
 
+dotenv.config({path: path.resolve(__dirname, './.env')})
+
 const currentEnv = process.env.Env || 'qa';
+const selectedSuite = process.env.SUITE;
 let calculatedBaseUrl = '';
 
 const configPath = path.resolve(__dirname, './config/environments.config.ts');
@@ -37,6 +40,7 @@ export default defineConfig({
   /* Opt out of parallel tests on CI. */
   workers: process.env.CI ? 1 : undefined,
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
+  grep: selectedSuite ? RegExp(`tag:${selectedSuite}`): undefined,
   reporter: [
     ['html', { open: 'never' }]
   ],
@@ -48,14 +52,38 @@ export default defineConfig({
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: 'on-first-retry',
     video: 'retain-on-failure',
-    screenshot: 'on',
+    screenshot: 'only-on-failure',
   },
 
   /* Configure projects for major browsers */
   projects: [
     {
+      name: 'setup-admin',
+      testMatch : '/auth\.admin\.setup\.ts',
+
+    },
+    {
+      name: 'setup-customer',
+      testMatch : '/auth\.customer\.setup\.ts',
+    },
+    // {
+    //   name: 'admin-tests',
+    //   use: {
+    //     storageState: './.auth/admin.json',
+    //   },
+    //   dependencies: ['setup-admin']
+    // },
+    // {
+    //   name: 'customer-tests',
+    //   use: {
+    //     storageState: './.auth/customer.json',
+    //   },
+    //   dependencies:['setup-customer']
+    // },
+    {
       name: 'chromium',
       use: { ...devices['Desktop Chrome'] },
+      dependencies: ['setup-admin', 'setup-customer']
     }
 
     // {

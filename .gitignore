@@ -8,4 +8,5 @@ node_modules/
 /playwright/.auth/
 
 #Environments
-config/environments.config.ts
+.env
+.auth
